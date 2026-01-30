@@ -22,11 +22,17 @@ type TelemetryPayload struct {
 }
 
 // Server URL (Change localhost to IP if running on different VMs)
-const serverURL = "http://localhost:8080/api/telemetry"
+func getServerURL() string {
+	if url := os.Getenv("SERVER_URL"); url != "" {
+		return url
+	}
+	return "http://localhost:8000/api/telemetry"
+}
 
 func main() {
+	targetURL := getServerURL()
 	log.Println("🔌 Starting Infrasight Agent (v1.0)...")
-	log.Printf("📡 Target Server: %s", serverURL)
+	log.Printf("📡 Target Server: %s", targetURL)
 
 	hostname, err := os.Hostname()
 	if err != nil {
@@ -59,18 +65,18 @@ func main() {
 		}
 
 		// Send HTTP POST Request
-		sendTelemetry(payload)
+		sendTelemetry(payload, targetURL)
 	}
 }
 
-func sendTelemetry(data TelemetryPayload) {
+func sendTelemetry(data TelemetryPayload, url string) {
 	jsonData, err := json.Marshal(data)
 	if err != nil {
 		log.Printf("JSON Error: %v", err)
 		return
 	}
 
-	resp, err := http.Post(serverURL, "application/json", bytes.NewBuffer(jsonData))
+	resp, err := http.Post(url, "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		log.Printf("⚠️ Failed to send metrics: %v", err)
 		return

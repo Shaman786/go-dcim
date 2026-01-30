@@ -1,0 +1,41 @@
+services:
+  # The Central "Brain"
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    ports:
+      - "8080:8080"
+    networks:
+      - infrasight-net
+
+  # Simulated Server 1 (Database Node)
+  node-db-01:
+    build:
+      context: .
+      dockerfile: Dockerfile.agent
+    environment:
+      # We point to the service name 'server', not localhost
+      - SERVER_URL=http://server:8080/api/telemetry
+    hostname: db-production-01
+    depends_on:
+      - server
+    networks:
+      - infrasight-net
+
+  # Simulated Server 2 (Cache Node)
+  node-cache-01:
+    build:
+      context: .
+      dockerfile: Dockerfile.agent
+    environment:
+      - SERVER_URL=http://server:8080/api/telemetry
+    hostname: redis-cache-01
+    depends_on:
+      - server
+    networks:
+      - infrasight-net
+
+networks:
+  infrasight-net:
+    driver: bridge

@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: infrasight-agent
+spec:
+  replicas: 2 # Demonstrates "Distributed" nature
+  selector:
+    matchLabels:
+      app: agent
+  template:
+    metadata:
+      labels:
+        app: agent
+    spec:
+      containers:
+      - name: agent
+        image: infrasight-agent:latest
+        imagePullPolicy: Never
+        env:
+        - name: SERVER_URL
+          value: "http://server:8080/api/telemetry" # Service Discovery!
