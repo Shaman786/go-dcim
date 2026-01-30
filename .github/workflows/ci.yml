@@ -2,28 +2,30 @@ name: Infrasight CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
 
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: '1.25.6'
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: "1.25.6"
+          cache: true
 
-    - name: Build Server
-      run: go build -v ./cmd/server/main.go
+      - name: Build Server
+        run: go build -v ./cmd/server/main.go
 
-    - name: Build Agent
-      run: go build -v ./cmd/agent/main.go
+      - name: Build Agent
+        run: go build -v ./cmd/agent/main.go
 
-    - name: Run Linter
-      uses: golangci/golangci-lint-action@v3
-      with:
-        version: v1.54
+      - name: Run Linter
+        uses: golangci/golangci-lint-action@v9
+        with:
+          version: v2.8.0
